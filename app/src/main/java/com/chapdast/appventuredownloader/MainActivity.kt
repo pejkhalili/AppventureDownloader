@@ -46,7 +46,7 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     private val WRITE_RQ = 101
 
-    var appPath=""
+
     inner class Downloader:AsyncTask<String,String,Boolean>(){
         override fun onPreExecute() {
             super.onPreExecute()
@@ -79,45 +79,63 @@ class MainActivity : AppCompatActivity() {
                         c.connect()
                         var PATH: String = "" + Environment.getExternalStorageDirectory() + "/Download/Appventure-Downloader/"
                         var file = File(PATH)
-                        file.mkdirs()
-                        var outFile = File(file, result.getString("name"))
-                        if (outFile.exists()) {
-                            outFile.delete()
-                        }
-
-                        var fos = FileOutputStream(outFile)
-                        var instream = c.getInputStream()
-                        var total_size = c.contentLength
-                        pg_dl.max = 100
-                        val buffer = ByteArray(1024)
-                        var len1 = 0
-                        var per = 0
-                        var downloaded = 0
-                        len1 = instream.read(buffer)
-                        while (len1 != -1) {
-                            fos.write(buffer, 0, len1)
-                            downloaded += len1
-                            per = downloaded * 100 / total_size
-                            publishProgress(per.toString())
-                            len1 = instream.read(buffer)
-                        }
-                        fos.close()
-                        instream.close()
-                        Thread.sleep(50)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            if (!applicationContext.packageManager.canRequestPackageInstalls()) {
-                                startActivityForResult(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(Uri.parse(String.format("package:%s", getPackageName()))), 1234);
+                        Log.d(TAG,File(file,result.getString("name")).toString())
+                        if(File(file,result.getString("name")).exists()) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                if (!applicationContext.packageManager.canRequestPackageInstalls()) {
+                                    startActivityForResult(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(Uri.parse(String.format("package:%s", getPackageName()))), 1234);
+                                } else {
+                                    appPath = PATH + result.getString("name")
+                                    OpenDLF(PATH + result.getString("name"), 1234)
+                                    flag = true
+                                }
                             } else {
                                 appPath = PATH + result.getString("name")
                                 OpenDLF(PATH + result.getString("name"), 1234)
                                 flag = true
                             }
-                        } else {
-                            appPath = PATH + result.getString("name")
-                            OpenDLF(PATH + result.getString("name"), 1234)
-                            flag = true
                         }
+                        else {
+                            file.mkdirs()
+                            var outFile = File(file, result.getString("name"))
+                            if (outFile.exists()) {
+                                outFile.delete()
+                            }
+//                            sToast(applicationContext, applicationContext.resources.getString(R.string.startdl))
 
+                            var fos = FileOutputStream(outFile)
+                            var instream = c.getInputStream()
+                            var total_size = c.contentLength
+                            pg_dl.max = 100
+                            val buffer = ByteArray(1024)
+                            var len1 = 0
+                            var per = 0
+                            var downloaded = 0
+                            len1 = instream.read(buffer)
+                            while (len1 != -1) {
+                                fos.write(buffer, 0, len1)
+                                downloaded += len1
+                                per = downloaded * 100 / total_size
+                                publishProgress(per.toString())
+                                len1 = instream.read(buffer)
+                            }
+                            fos.close()
+                            instream.close()
+                            Thread.sleep(50)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                if (!applicationContext.packageManager.canRequestPackageInstalls()) {
+                                    startActivityForResult(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(Uri.parse(String.format("package:%s", getPackageName()))), 1234);
+                                } else {
+                                    appPath = PATH + result.getString("name")
+                                    OpenDLF(PATH + result.getString("name"), 1234)
+                                    flag = true
+                                }
+                            } else {
+                                appPath = PATH + result.getString("name")
+                                OpenDLF(PATH + result.getString("name"), 1234)
+                                flag = true
+                            }
+                        }
                     }
                 }
             }catch (e: Exception) {
@@ -140,9 +158,10 @@ class MainActivity : AppCompatActivity() {
             }else{
                 sToast(applicationContext,applicationContext.resources.getString(R.string.tryAgain))
             }
+            var appCheck = Intent(applicationContext,AppCheck::class.java)
+            appCheck.action = applicationContext.packageName + ".AppCheck"
+            startService(appCheck)
             finishAffinity()
-
-
         }
 
     }
@@ -188,36 +207,37 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
         if(isNetworkAvailable(applicationContext)) {
-
-            val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-            StrictMode.setThreadPolicy(policy)
-            var back = khttp.post(SERVER_ADDRESS,data = mapOf("m" to "bg", "app" to APP))
-            if(back.statusCode ==200) {
-                var res = back.jsonObject
-                if (res.getBoolean("result")) {
-                    var bg = res.getString("bg")
-                    Picasso.with(applicationContext).load(bg).placeholder(R.mipmap.icon).into(back_dl)
+            try {
+                val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+                StrictMode.setThreadPolicy(policy)
+                var back = khttp.post(SERVER_ADDRESS, data = mapOf("m" to "bg", "app" to APP))
+                if (back.statusCode == 200) {
+                    var res = back.jsonObject
+                    if (res.getBoolean("result")) {
+                        var bg = res.getString("bg")
+                        Picasso.with(applicationContext).load(bg).placeholder(R.mipmap.icon).into(back_dl)
+                    }
                 }
+                pg_dl.visibility = View.GONE
+                makeRequest()
+                setupPermissions()
+                var assetManager = applicationContext.assets
+                var iransans = Typeface.createFromAsset(assetManager, String.format(Locale.ENGLISH, "fonts/%s", "iransans.ttf"))
+                btn_dl.typeface = iransans
+
+
+                btn_dl.isEnabled = false
+                var dlProccess = Downloader().execute()
+            }catch (e:SocketTimeoutException){
+                Log.e(TAG,applicationContext.resources.getString(R.string.noNet))
             }
+        }else{
+            sToast(applicationContext,applicationContext.resources.getString(R.string.noNet))
         }
-            pg_dl.visibility = View.GONE
-            makeRequest()
-            setupPermissions()
-            var assetManager = applicationContext.assets
-            var iransans = Typeface.createFromAsset(assetManager, String.format(Locale.ENGLISH, "fonts/%s", "iransans.ttf"))
-            btn_dl.typeface = iransans
 
-            btn_dl.setOnClickListener {
-                if(isNetworkAvailable(applicationContext)) {
-                    sToast(applicationContext, applicationContext.resources.getString(R.string.startdl))
-                    btn_dl.isEnabled = false
-                    Log.d(TAG, "CLICKED")
-                    var dlProccess = Downloader().execute()
-                }else{
-                    sToast(applicationContext,applicationContext.resources.getString(R.string.noNet))
-                }
-            }
 
 
     }

@@ -5,4 +5,5 @@
     <string name="startdl">در حال دریافت فایل...</string>
     <string name="tryAgain">مجددا تلاش کنید</string>
     <string name="noNet">ارتباط با اینترنت برقرار نمی باشد</string>
+    <string name="title_activity_splash">Splash</string>
 </resources>

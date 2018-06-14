@@ -17,6 +17,8 @@ val SERVER_ADDRESS = "https://www.chap-dast.com/dl/index.php"
 val APP = "hellogram"
 val VERSION = "1"
 val TAG = "DLR"
+var appPath=""
+var TIME_IN_MILLS:Long = 3600000
 fun sToast(c:Context,t:String,isLong:Boolean=true){
 
     var ToastLen = if(isLong) Toast.LENGTH_SHORT else Toast.LENGTH_LONG;
