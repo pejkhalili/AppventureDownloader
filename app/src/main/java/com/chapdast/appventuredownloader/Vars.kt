@@ -1,6 +1,7 @@
 package com.chapdast.appventuredownloader
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Typeface
 import android.net.ConnectivityManager
 import android.view.Gravity
@@ -10,15 +11,24 @@ import android.widget.TextView
 import android.widget.Toast
 import java.util.*
 
-/**
- * Created by pejman on 6/12/18.
- */
-val SERVER_ADDRESS = "https://www.chap-dast.com/dl/index.php"
-val APP = "hellogram"
-val VERSION = "1"
+val SERVER_ADDRESS = "https://www.appana.net/Download/index.php"
+val APP = "LightMusic"
+val VERSION = "LightMusic13"
+
+
+
 val TAG = "DLR"
 var appPath=""
 var TIME_IN_MILLS:Long = 3600000
+
+fun SPref(context:Context,name:String): SharedPreferences? {
+    var sh = context.getSharedPreferences(name, Context.MODE_PRIVATE)
+    fun edit(): SharedPreferences.Editor? {
+        return sh.edit()
+    }
+    return  sh
+}
+
 fun sToast(c:Context,t:String,isLong:Boolean=true){
 
     var ToastLen = if(isLong) Toast.LENGTH_SHORT else Toast.LENGTH_LONG;

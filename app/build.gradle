@@ -31,10 +31,10 @@ android {
 }
 
 dependencies {
-    //Pushe.co
-    compile 'co.ronash.android:pushe-base:1.4.0'
-    compile 'com.google.android.gms:play-services-gcm:11.8.0'
-    compile 'com.google.android.gms:play-services-location:11.8.0'
+//    //Pushe.co
+//    compile 'co.ronash.android:pushe-base:1.4.0'
+//    compile 'com.google.android.gms:play-services-gcm:11.8.0'
+//    compile 'com.google.android.gms:play-services-location:11.8.0'
 
     //http Controller
     compile 'khttp:khttp:0.1.0'
