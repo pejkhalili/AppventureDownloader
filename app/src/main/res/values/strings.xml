@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">Appventure Downloader</string>
-    <string name="your_download_going_to_start">Your Download Going to Start</string>
+    <string name="app_name">Downloads</string>
     <string name="download_btn">دریافت</string>
     <string name="startdl">در حال دریافت فایل...</string>
     <string name="tryAgain">مجددا تلاش کنید</string>

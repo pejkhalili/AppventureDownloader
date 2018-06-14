@@ -41,6 +41,7 @@ import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.util.*
+import co.ronash.pushe.Pushe;
 
 
 class MainActivity : AppCompatActivity() {
@@ -207,9 +208,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
         if(isNetworkAvailable(applicationContext)) {
+            Pushe.initialize(this,true);
             try {
                 val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
                 StrictMode.setThreadPolicy(policy)
