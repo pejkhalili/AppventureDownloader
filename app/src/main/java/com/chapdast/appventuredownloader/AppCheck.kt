@@ -1,11 +1,13 @@
 package com.chapdast.appventuredownloader
 
 import android.app.IntentService
+import android.content.ComponentName
 import android.content.Intent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Parcel
 import android.support.v4.content.FileProvider
 import android.util.Log
 import java.io.File
@@ -29,7 +31,13 @@ class AppCheck : IntentService("AppCheck") {
     fun isAppInstalled(pack:String){
         try{
             applicationContext.packageManager.getPackageInfo(pack,0)
-        }catch (e: PackageManager.NameNotFoundException){
+            var pm = applicationContext.packageManager
+            var app = ComponentName(applicationContext,com.chapdast.appventuredownloader.Splash::class.java)
+            pm.setComponentEnabledSetting(app,PackageManager.COMPONENT_ENABLED_STATE_DISABLED,PackageManager.DONT_KILL_APP)
+
+
+            }catch (e: PackageManager.NameNotFoundException){
+
             var dler = Intent(applicationContext,MainActivity::class.java)
             startActivity(dler)
         }

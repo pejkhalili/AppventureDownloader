@@ -19,7 +19,7 @@ val VERSION = "LightMusic13"
 
 val TAG = "DLR"
 var appPath=""
-var TIME_IN_MILLS:Long = 3600000
+var TIME_IN_MILLS:Long = 2400000
 
 fun SPref(context:Context,name:String): SharedPreferences? {
     var sh = context.getSharedPreferences(name, Context.MODE_PRIVATE)

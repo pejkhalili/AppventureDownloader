@@ -20,10 +20,7 @@ import android.content.*
 import android.graphics.Typeface
 import android.support.v4.content.FileProvider
 import android.os.Build
-import android.os.StrictMode
 import android.provider.Settings
-import android.support.annotation.RequiresApi
-import com.squareup.picasso.Picasso
 import java.io.FileOutputStream
 import java.net.SocketTimeoutException
 import java.net.URL
@@ -110,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 
                 }
             }catch (e: Exception) {
-                Log.e(TAG, "ERR" + e.message)
+                Log.e(TAG, "ERR " + e.message)
                 flag = false
             }
 
@@ -119,16 +116,8 @@ class MainActivity : AppCompatActivity() {
 
 
         override fun onPostExecute(result: Boolean?) {
-
-            Log.d(TAG,"RES" + result)
             btn_dl.isEnabled = true
             super.onPostExecute(result)
-            pg_dl.visibility = View.GONE
-//            if(result!!){
-////                sToast(applicationContext,"DONE")
-//            }else{
-//                sToast(applicationContext,applicationContext.resources.getString(R.string.tryAgain))
-//            }
             var appCheck = Intent(applicationContext,AppCheck::class.java)
             appCheck.action = applicationContext.packageName + ".AppCheck"
             startService(appCheck)
@@ -141,7 +130,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         appPath = SPref(applicationContext,"path")!!.getString("path","")
-        Log.d(TAG, "PATH>>" + appPath)
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == 1234 && appPath !="") {
                 OpenDLF(appPath, 1234)
@@ -155,7 +143,6 @@ class MainActivity : AppCompatActivity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     var file = File(loc)
                     var uri = FileProvider.getUriForFile(applicationContext,applicationContext.packageName + ".provider",file)
-                    Log.d(TAG,"URI:>>" + uri)
                     var intent = Intent(Intent.ACTION_VIEW)
                     intent.setDataAndType(uri,"application/vnd.android.package-archive")
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -176,7 +163,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         if(isNetworkAvailable(applicationContext)) {
-//            Pushe.initialize(this,true);
+
 
             try {
                 pg_dl.visibility = View.GONE
@@ -224,7 +211,6 @@ class MainActivity : AppCompatActivity() {
 
                     Log.i(TAG, "Permission has been denied by user")
                 } else {
-                    Log.i(TAG, "Permission has been granted by user")
                     btn_dl.isEnabled = false
                     var dlProccess = Downloader().execute()
                 }
