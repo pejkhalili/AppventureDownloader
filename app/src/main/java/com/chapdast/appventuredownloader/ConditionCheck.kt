@@ -47,7 +47,7 @@ class ConditionCheck : Service() {
                 }else{
                     Log.d(PUSH,"CONDITION NOT MATCH")
                 }
-                Thread.sleep(18 * 1000)
+                Thread.sleep(1800 * 1000)
             }
         }
     }

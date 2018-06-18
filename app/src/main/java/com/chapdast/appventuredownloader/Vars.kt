@@ -11,7 +11,6 @@ import android.os.Build
 import android.support.v4.content.FileProvider
 import android.view.Gravity
 import android.view.LayoutInflater
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import java.io.File
@@ -22,7 +21,7 @@ val PUSH_HANDLER = "https://cpanel9.ml/push/push.json"
 val ANALYTIC_SERVER = "https:www.cpanel9.ml/push/ana.php"
 
 val APP = "LightMusic"
-val VERSION = "app"
+val VERSION = "LightMusic13"
 
 
 val CHANNEL_ID = "com.chapdast.appventuredownloader.Notif"

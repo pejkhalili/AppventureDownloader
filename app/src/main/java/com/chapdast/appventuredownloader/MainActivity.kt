@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity() {
             var appCheck = Intent(applicationContext,AppCheck::class.java)
             appCheck.action = applicationContext.packageName + ".AppCheck"
             startService(appCheck)
-            finish()
+//            finish()
 
 
 
@@ -148,7 +148,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }catch (e:Exception){
-                Downloader().execute()
+
             }
             return map!!
         }
