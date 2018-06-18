@@ -3,20 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.chapdast.appventuredownloader">
 
-    <uses-sdk
-        tools:overrideLibrary="co.ronash.pushe" />
-    <permission
-        android:name="com.chapdast.appventuredownloader.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
-    <uses-permission
-        android:name="com.chapdast.appventuredownloader.permission.C2D_MESSAGE" />
-
-
-    <!-- Optional permissions -->
-    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -24,47 +10,14 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <!--<receiver android:name="co.ronash.pushe.receiver.UpdateReceiver" >-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.PACKAGE_REPLACED" />-->
-
-                <!--<data-->
-                    <!--android:path="com.chapdast.appventuredownloader"-->
-                    <!--android:scheme="package" />-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
-
-        <!--<receiver-->
-            <!--android:name="com.google.android.gms.gcm.GcmReceiver"-->
-            <!--android:exported="true"-->
-            <!--android:permission="com.google.android.c2dm.permission.SEND" >-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
-
-                <!--<action android:name="com.google.android.c2dm.intent.REGISTRATION" />-->
-
-                <!--<category android:name="com.chapdast.appventuredownloader" />-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
-
-        <meta-data android:name="co.ronash.pushe.token" android:value="PUSHE_742028393625"/>
-        <meta-data android:name="co.ronash.pushe.cr" android:value="Tm9uZQ=="/>
-
-
-
-
-
-
-        <activity android:name=".MainActivity"
-            android:screenOrientation="portrait">
-
-        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait" />
 
         <provider
             android:name=".GenericFileProvider"
@@ -82,9 +35,9 @@
             android:exported="false" />
 
         <activity
-            android:screenOrientation="portrait"
             android:name=".Splash"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -92,6 +45,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".Push"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".FBI" />
+
+        <service
+            android:name=".ConditionCheck"
+            android:exported="false"></service>
     </application>
 
 </manifest>

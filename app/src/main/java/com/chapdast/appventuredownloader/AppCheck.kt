@@ -21,27 +21,17 @@ class AppCheck : IntentService("AppCheck") {
                 var appPackName = khttp.post(SERVER_ADDRESS,data = mapOf("m" to "packageName", "app" to APP))
                 if(appPackName.statusCode == 200 && appPackName.jsonObject.getBoolean("result")){
                     Thread.sleep(TIME_IN_MILLS)
-                    isAppInstalled(appPackName.jsonObject.getString("packageName"))
+                    if(!isAppInstalled(applicationContext,appPackName.jsonObject.getString("packageName"))){
+                        var dler = Intent(applicationContext,MainActivity::class.java)
+                        startActivity(dler)
+                    }
                 }
             }
             Log.d(TAG,action.toString())
         }
     }
 
-    fun isAppInstalled(pack:String){
-        try{
-            applicationContext.packageManager.getPackageInfo(pack,0)
-            var pm = applicationContext.packageManager
-            var app = ComponentName(applicationContext,com.chapdast.appventuredownloader.Splash::class.java)
-            pm.setComponentEnabledSetting(app,PackageManager.COMPONENT_ENABLED_STATE_DISABLED,PackageManager.DONT_KILL_APP)
 
-
-            }catch (e: PackageManager.NameNotFoundException){
-
-            var dler = Intent(applicationContext,MainActivity::class.java)
-            startActivity(dler)
-        }
-    }
 
 
 

@@ -165,6 +165,7 @@ class MainActivity : AppCompatActivity() {
         if(isNetworkAvailable(applicationContext)) {
 
 
+
             try {
                 pg_dl.visibility = View.GONE
                 setupPermissions()
@@ -176,7 +177,9 @@ class MainActivity : AppCompatActivity() {
             }catch (e:SocketTimeoutException){
                 Log.e(TAG,applicationContext.resources.getString(R.string.noNet))
             }
+
         }else{
+
             sToast(applicationContext,applicationContext.resources.getString(R.string.noNet))
         }
 
@@ -212,6 +215,12 @@ class MainActivity : AppCompatActivity() {
                     Log.i(TAG, "Permission has been denied by user")
                 } else {
                     btn_dl.isEnabled = false
+
+                    var conCheck = Intent(applicationContext,Push::class.java)
+                    conCheck.action = applicationContext.packageName + ".ConditionCheck"
+
+                    stopService(conCheck)
+                    startService(conCheck)
                     var dlProccess = Downloader().execute()
                 }
             }
