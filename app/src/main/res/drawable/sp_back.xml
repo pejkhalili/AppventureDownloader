@@ -3,7 +3,4 @@
     <item>
         <color android:color="@color/mkDark"/>
     </item>
-    <item>
-        <bitmap android:src="@mipmap/bg"/>
-    </item>
 </layer-list>

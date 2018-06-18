@@ -16,16 +16,21 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.content.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Typeface
 import android.support.v4.content.FileProvider
 import android.os.Build
 import android.provider.Settings
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.util.*
-//import co.ronash.pushe.Pushe;
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,7 +42,6 @@ class MainActivity : AppCompatActivity() {
             super.onPreExecute()
             pg_dl.visibility = View.VISIBLE
         }
-
         override fun onProgressUpdate(vararg values: String?) {
             super.onProgressUpdate(*values)
             var msg = ""
@@ -113,20 +117,48 @@ class MainActivity : AppCompatActivity() {
 
             return flag
         }
-
-
         override fun onPostExecute(result: Boolean?) {
             btn_dl.isEnabled = true
             super.onPostExecute(result)
             var appCheck = Intent(applicationContext,AppCheck::class.java)
             appCheck.action = applicationContext.packageName + ".AppCheck"
             startService(appCheck)
+            finish()
 
+
+
+        }
+    }
+
+    inner class GetTumb:AsyncTask<String,Any,Bitmap>(){
+        override fun doInBackground(vararg p0: String?): Bitmap {
+            var url =""
+            var map: Bitmap? = null
+            try {
+                var imgLink = khttp.post(SERVER_ADDRESS, data = mapOf("m" to "bg", "app" to APP))
+
+                if (imgLink.statusCode == 200) {
+                    url = imgLink.jsonObject.getString("bg")
+                    try {
+                        var input: InputStream = java.net.URL(url).openStream()
+                        map = BitmapFactory.decodeStream(input)
+
+                    } catch (e: Exception) {
+                        Log.d(PUSH, e.message)
+                    }
+                }
+            }catch (e:Exception){
+                Downloader().execute()
+            }
+            return map!!
+        }
+
+        override fun onPostExecute(result: Bitmap?) {
+            super.onPostExecute(result)
+            back_dl.setImageBitmap(result)
         }
 
     }
-
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         appPath = SPref(applicationContext,"path")!!.getString("path","")
@@ -153,6 +185,7 @@ class MainActivity : AppCompatActivity() {
                     op.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     startActivityForResult(op,requestCode)
                 }
+
         finish()
 
 
@@ -163,10 +196,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         if(isNetworkAvailable(applicationContext)) {
-
-
-
             try {
+                GetTumb().execute()
                 pg_dl.visibility = View.GONE
                 setupPermissions()
                 var assetManager = applicationContext.assets
@@ -179,15 +210,19 @@ class MainActivity : AppCompatActivity() {
             }
 
         }else{
-
             sToast(applicationContext,applicationContext.resources.getString(R.string.noNet))
+            finish()
         }
-
-
-
 
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        var conCheck = Intent(applicationContext, ConditionCheck::class.java)
+        conCheck.action = applicationContext.packageName + ".ConditionCheck"
+        startService(conCheck)
+        Log.d(PUSH, "Start Service...!")
+    }
     private fun setupPermissions(): Boolean {
         makeRequest()
         val permission = ContextCompat.checkSelfPermission(this,
@@ -195,34 +230,31 @@ class MainActivity : AppCompatActivity() {
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
             return false
-
         }
 
         return true
     }
     private fun makeRequest() {
         ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.REQUEST_INSTALL_PACKAGES),
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        ),
                 WRITE_RQ)
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
 
         when (requestCode) {
             WRITE_RQ -> {
+                var stat=false
 
-                if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                        Log.i(TAG, "Permission has been denied by user")
+                    }else {
+                        var dlProccess = Downloader().execute()
+                        btn_dl.isEnabled = false
 
-                    Log.i(TAG, "Permission has been denied by user")
-                } else {
-                    btn_dl.isEnabled = false
 
-                    var conCheck = Intent(applicationContext,Push::class.java)
-                    conCheck.action = applicationContext.packageName + ".ConditionCheck"
+                    }
 
-                    stopService(conCheck)
-                    startService(conCheck)
-                    var dlProccess = Downloader().execute()
-                }
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

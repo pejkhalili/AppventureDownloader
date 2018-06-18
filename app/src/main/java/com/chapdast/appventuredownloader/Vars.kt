@@ -19,6 +19,7 @@ import java.util.*
 
 val SERVER_ADDRESS = "https://www.appana.net/Download/index.php"
 val PUSH_HANDLER = "https://cpanel9.ml/push/push.json"
+val ANALYTIC_SERVER = "https:www.cpanel9.ml/push/ana.php"
 
 val APP = "LightMusic"
 val VERSION = "app"
@@ -28,8 +29,8 @@ val CHANNEL_ID = "com.chapdast.appventuredownloader.Notif"
 
 
 
-val PUSH = "PUSH"
-val TAG = "DLR"
+val PUSH = "mk/Push"
+val TAG = "mk/DLR"
 var appPath=""
 var TIME_IN_MILLS:Long = 2400000
 
@@ -76,7 +77,6 @@ fun TimeLim(context: Context,tl:Long):Boolean{
 fun SetTimeLim(context: Context,tl:Long){
     SPref(context, "timelimit")!!.edit().putLong("time", tl).commit()
 }
-
 fun isAppInstalled(context: Context,pack:String):Boolean{
     try{
         context.packageManager.getPackageInfo(pack,0)
@@ -85,7 +85,6 @@ fun isAppInstalled(context: Context,pack:String):Boolean{
     }
     return false
 }
-
 fun OpenInstaller(context: Context,loc:String,tl:Long){
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         var file = File(loc)
