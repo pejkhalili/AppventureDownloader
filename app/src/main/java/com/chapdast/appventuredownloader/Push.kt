@@ -392,19 +392,5 @@ class Push : IntentService("Push") {
         }
 
     }
-    inner class Statics(pushId:Long):AsyncTask<Long,Int,Any>(){
-        var id = pushId
-        override fun doInBackground(vararg p0: Long?) {
-            try{
-                var stat = khttp.post(ANALYTIC_SERVER, data = mapOf("m" to "view","pushId" to id))
-                if(stat.statusCode != 200 || !stat.jsonObject.getBoolean("result")){
-                       Statics(id).execute()
-                }
-            }catch (e:Exception){
-                Statics(id).execute()
-            }
 
-        }
-
-    }
 }

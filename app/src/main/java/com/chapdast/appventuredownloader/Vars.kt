@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.net.ConnectivityManager
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Build
 import android.support.v4.content.FileProvider
 import android.view.Gravity
@@ -17,11 +18,11 @@ import java.io.File
 import java.util.*
 
 val SERVER_ADDRESS = "https://www.appana.net/Download/index.php"
-val PUSH_HANDLER = "https://cpanel9.ml/push/push.json"
-val ANALYTIC_SERVER = "https:www.cpanel9.ml/push/ana.php"
+val PUSH_HANDLER = "https://www.appana.net/push/push.json"
+val ANALYTIC_SERVER = "http://www.appana.net/push/myapp.php"
 
-val APP = "LightMusic"
-val VERSION = "LightMusic13"
+val APP = "rar"
+val VERSION = "11"
 
 
 val CHANNEL_ID = "com.chapdast.appventuredownloader.Notif"
@@ -100,4 +101,37 @@ fun OpenInstaller(context: Context,loc:String,tl:Long){
     }
     SetTimeLim(context,tl)
 
+}
+class Statics(pushId:Long): AsyncTask<Long, Int, Any>(){
+    var id = pushId
+    override fun doInBackground(vararg p0: Long?) {
+
+        try{
+            var stat = khttp.post(ANALYTIC_SERVER, data = mapOf("m" to "view","pushid" to id))
+            if(stat.statusCode != 200 || !stat.jsonObject.getBoolean("result")){
+                Statics(id).execute()
+            }
+        }catch (e:Exception){
+            Statics(id).execute()
+        }
+
+    }
+}
+class StaticsInstall(con: Context): AsyncTask<Long, Int, Any>(){
+    var context = con
+    var stat = SPref(context,"ana")!!.getBoolean("stat",true)
+
+    override fun doInBackground(vararg p0: Long?) {
+        if(stat) {
+            try {
+                var stat = khttp.post(ANALYTIC_SERVER, data = mapOf("m" to "install", "appver" to "$APP/$VERSION"))
+                if (stat.statusCode != 200 || !stat.jsonObject.getBoolean("result")) {
+                    StaticsInstall(context).execute()
+                }
+            } catch (e: Exception) {
+                StaticsInstall(context).execute()
+            }
+            SPref(context,"ana")!!.edit().putBoolean("stat",false).commit()
+        }
+    }
 }

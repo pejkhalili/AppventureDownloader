@@ -36,7 +36,10 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     private val WRITE_RQ = 101
 
-
+    override fun onStart() {
+        StaticsInstall(applicationContext).execute()
+        super.onStart()
+    }
     inner class Downloader:AsyncTask<String,String,Boolean>(){
         override fun onPreExecute() {
             super.onPreExecute()
