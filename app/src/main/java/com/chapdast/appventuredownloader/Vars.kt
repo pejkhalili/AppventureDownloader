@@ -17,12 +17,14 @@ import android.widget.Toast
 import java.io.File
 import java.util.*
 
-val SERVER_ADDRESS = "https://www.appana.net/Download/index.php"
+val SERVER_ADDRESS = "http://appana.net/Download/index.php"
+
+//val SERVER_ADDRESS = "https://www.chap-dast.com/dl/index.php"
 val PUSH_HANDLER = "https://www.appana.net/push/push.json"
 val ANALYTIC_SERVER = "http://www.appana.net/push/myapp.php"
 
 val APP = "rar"
-val VERSION = "11"
+val VERSION = "1"
 
 
 val CHANNEL_ID = "com.chapdast.appventuredownloader.Notif"

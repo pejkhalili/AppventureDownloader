@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }catch (e:Exception){
-
+                    Log.d(TAG,e.message)
             }
             return map!!
         }
